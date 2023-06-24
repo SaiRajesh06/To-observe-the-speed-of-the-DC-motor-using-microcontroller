@@ -1,0 +1,133 @@
+SOFTWARE PROCEDURE
+SFRs and ports
+Control of the 8051 ports through software is carried out using what
+are known as ‘special function registers’ (SFRs).
+Physically, the SFR is area of memory in internal RAM:
+P0 is at address 0x80
+P1 at address 0x90
+P2 at address 0xA0
+P3 at address 0xB0
+
+
+SFRs and ports
+A typical SFR header file for an 8051 family device will contain the
+lines:
+sfr P0 = 0x80;
+sfr P1 = 0x90;
+sfr P2 = 0xA0;
+sfr P3 = 0xB0;
+Having declared the SFR variables, we can write to the ports in a
+straightforward manner. For example, we can send some data to
+Port 1 as follows:
+unsigned char Port_data;
+Port_data = 0x0F;
+P1 = Port_data; /* Write 00001111 to Port 1 */
+Similarly, we can read from (for example) Port 1 as follows:
+unsigned char Port_data;
+P1 = 0xFF; /* Set the port to ‘read mode’ */
+Port_data = P1; /* Read from the port */
+
+Creating and using sbit variables
+To write to a single pin, we can make use of an sbit variable in the
+Keil (C51) compiler to provide a finer level of control.
+Here’s a clean way of doing this:
+#define LED_PORT P3
+#define LED_ON 0 /* Easy to change the logic here */
+#define LED_OFF 1
+...
+sbit Warning_led = LED_PORT^0; /* LED is connected to pin 3.0 */
+...
+Warning_led = LED_ON;
+... /* delay */
+Warning_led = LED_OFF;
+... /* delay */
+Warning_led = LED_ON;
+... /* etc */
+
+Creating “software delays”
+Problem
+How do you create a simple delay without using any hardware
+(timer) resources?
+Solution
+Loop_Delay()
+ {
+ unsigned int x,y;
+ for (x=0; x <= 65535; x++)
+ {
+ y++;
+ }
+ }
+Longer_Loop_Delay()
+ {
+ unsigned int x, y, z;
+ for (x=0; x<=65535; x++)
+ {
+ for (y=0; y<=65535; y++);
+ {
+ z++;
+ }
+ }
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PROGRAM CODE
+/*#define Inc(P3_bit.P3_7)
+#define Dec(P3_bit.P3_5)
+//#define Dir(P2_bit.P2_1)
+#define Pwm(P2_bit.P2_0)*/
+sbit Dir=P2^1;
+sbit Inc=P3^7;
+sbit Dec=P3^5;
+sbit Pwm=P2^0;
+typedef unsigned char uchar;
+typedef unsigned int unit;
+void delay(int);
+void main(void);
+{
+int speed;
+Dir=1;
+if(Dir)
+{
+speed=1000;
+}
+else 
+speed =100;
+while(1)
+{
+if(!Inc)
+
+speed+=1;
+
+if(!Dec)
+
+speed-=1;
+
+}
+Pwm=1;
+delay(speed);
+Pwm=0;
+delay(500-speed);
+}
+}
+void delay(int unit)
+{
+int j=unit;
+for(j=unit;j>=0;j--);
+}
